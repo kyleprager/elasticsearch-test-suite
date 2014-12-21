@@ -25,7 +25,7 @@ public class UserThread implements Runnable {
     private BulkProcessor bulkProcessor;
     private RateLimiter messageRateLimiter;
     private int bulkSize;
-    private long id;
+    private final long id;
     private boolean stop = false;
     private long ctr = 0;
 
