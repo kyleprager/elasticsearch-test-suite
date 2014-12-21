@@ -41,6 +41,10 @@ public class UserThread implements Runnable {
         this.concurrentBulkRequestsPerUser = concurrentBulkRequestsPerUser;
         this.flushSizeInMB = flushSizeInMB;
         this.flushTimeInSeconds = flushTimeInSeconds;
+    }
+
+    @Override
+    public void run() {
         this.bulkProcessor = BulkProcessor.builder(
                 client,
                 new BulkProcessor.Listener() {
@@ -66,11 +70,6 @@ public class UserThread implements Runnable {
                 .setFlushInterval(TimeValue.timeValueSeconds(flushTimeInSeconds))
                 .setConcurrentRequests(concurrentBulkRequestsPerUser)
                 .build();
-    }
-
-    @Override
-    public void run() {
-
         try {
             // read the file of tweets line by line in a loop until the ExecutorService shuts us down
             while (!stop) {
