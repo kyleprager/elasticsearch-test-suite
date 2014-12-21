@@ -17,6 +17,18 @@ repositories {
     jcenter()
 }
 
+task fatJar(type: Jar) {
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    from sourceSets.test.output
+    with jar
+}
+
+task packageTests(type: Jar) {
+    from sourceSets.test.output
+    from sourceSets.main.output
+}
+
+
 // In this section you declare the dependencies for your production and test code
 dependencies {
     // The production code uses the SLF4J logging API at compile time
