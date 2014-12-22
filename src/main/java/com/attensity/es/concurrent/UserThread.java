@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * Created by Kyle on 12/9/14.
@@ -32,6 +33,7 @@ public class UserThread implements Runnable {
     private int concurrentBulkRequestsPerUser;
     private int flushSizeInMB;
     private int flushTimeInSeconds;
+    private final UUID uuid = UUID.randomUUID();
 
     public UserThread(long id, RateLimiter messageRateLimiter, Client client, int bulkSize, int concurrentBulkRequestsPerUser, int flushSizeInMB, int flushTimeInSeconds) {
         this.id = id;
@@ -78,7 +80,7 @@ public class UserThread implements Runnable {
                 String line;
                 while ((line = br.readLine()) != null && !stop) {
                     messageRateLimiter.acquire();
-                    bulkProcessor.add(new IndexRequest("twitter", "tweet").source(line));
+                    bulkProcessor.add(new IndexRequest("twitter-" + uuid.toString(), "tweet").source(line));
                     ctr++;
                 }
             }
