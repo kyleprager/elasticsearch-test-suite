@@ -52,7 +52,7 @@ public class ElasticsearchLoadTest {
     public static Collection<Object[]> returnParameters() {
         return Arrays.asList(new Object[][]{
                 // increase bulk size
-                {1, 60, 5000, 1000, 5, 15, 5}
+                {1, 60, 5000, 1000, 2, 10, 5}
 
 //                {1, 60, 5000, 2000, 1, 15, 5},
 //                {1, 60, 5000, 3000, 1, 15, 5},
@@ -92,8 +92,10 @@ public class ElasticsearchLoadTest {
                 public Void call() throws Exception {
                     Settings settings = ImmutableSettings.settingsBuilder()
                             .put("cluster.name", "dev-es-attensity").build();
+//                            .build();
 
                     Client client = new TransportClient(settings).addTransportAddress(new InetSocketTransportAddress("54.148.165.96", 9300));
+//                    Client client = new TransportClient(settings).addTransportAddress(new InetSocketTransportAddress("127.0.0.1", 9300));
 
                     UserThread userThread = new UserThread(atomicInteger.incrementAndGet(), rateLimiter, client, bulkSize, concurrentBulkRequestsPerUser, flushSizeInMB, flushTimeInSeconds);
                     threadList.add(userThread);
@@ -125,7 +127,7 @@ public class ElasticsearchLoadTest {
         }
 
         System.out.println("Total messages processed: " + totalMessages);
-        System.out.printf("Messages per second (attempted/actual: %s/%s\n", totalMessages / durationInSeconds,
+        System.out.printf("Messages per second (actual/attempted): %s/%s\n", totalMessages / durationInSeconds,
                 messageRatePerSecond);
     }
 }

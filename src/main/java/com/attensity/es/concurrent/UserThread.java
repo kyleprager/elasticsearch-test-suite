@@ -33,7 +33,7 @@ public class UserThread implements Runnable {
     private int concurrentBulkRequestsPerUser;
     private int flushSizeInMB;
     private int flushTimeInSeconds;
-    private final UUID uuid = UUID.randomUUID();
+    private final long startTime = System.currentTimeMillis();
 
     public UserThread(long id, RateLimiter messageRateLimiter, Client client, int bulkSize, int concurrentBulkRequestsPerUser, int flushSizeInMB, int flushTimeInSeconds) {
         this.id = id;
@@ -53,7 +53,7 @@ public class UserThread implements Runnable {
 
                     @Override
                     public void beforeBulk(long executionId, BulkRequest request) {
-                        System.out.printf("Sending bulk request from thread %s with %s docs.\n", id, request.numberOfActions());
+                        System.out.printf("Sending bulk request from thread %s with %s docs - %s\n", id, request.numberOfActions(), ctr);
                     }
 
                     @Override
@@ -80,7 +80,7 @@ public class UserThread implements Runnable {
                 String line;
                 while ((line = br.readLine()) != null && !stop) {
                     messageRateLimiter.acquire();
-                    bulkProcessor.add(new IndexRequest("twitter-" + uuid.toString(), "tweet").source(line));
+                    bulkProcessor.add(new IndexRequest("twitter-" + startTime, "tweet").source(line));
                     ctr++;
                 }
             }
@@ -88,6 +88,8 @@ public class UserThread implements Runnable {
             System.out.println(Throwables.getStackTraceAsString(e));
         } finally {
             System.out.printf("Closing node for thread %s\n", id);
+            bulkProcessor.flush();
+            bulkProcessor.close();
             client.close();
         }
     }
